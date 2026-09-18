@@ -1,0 +1,523 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-display: var(--font-unbounded), system-ui, sans-serif;
+  --font-body: var(--font-manrope), system-ui, sans-serif;
+  --font-alt: var(--font-montserrat), system-ui, sans-serif;
+}
+
+@theme {
+  --color-night: #0A0A10;
+  --color-coal: #0E0E15;
+  --color-panel: #12121A;
+  --color-neon: #4DC9F6;
+  --color-neon-light: #7DD8F8;
+  --color-neon-deep: #1A8FC4;
+  --color-ivory: #F0F2F5;
+  --color-mist: #8A8F99;
+  --color-aqua: #00B4D8;
+  --color-star: #FFB800;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-night font-body text-ivory antialiased overflow-x-clip;
+  }
+
+  /* плівкове зерно поверх усього сайту */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    pointer-events: none;
+    opacity: 0.045;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
+  }
+
+  ::selection {
+    background: #4DC9F6;
+    color: #0A0A10;
+  }
+
+  section[id] {
+    scroll-margin-top: 96px;
+  }
+
+  :focus-visible {
+    outline: 2px solid rgba(77, 201, 246, 0.7);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0A0A10;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #1A1A24;
+    border-radius: 8px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #1A2A3A;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    .kenburns,
+    .ticker-track,
+    .drift-a,
+    .drift-b,
+    .drift-c,
+    .light-streak,
+    .float-y,
+    .float-y-slow,
+    .clip-text-reveal,
+    .border-beam::before,
+    .scroll-hint,
+    .handle-hint,
+    .pulse-dot,
+    .arrow-nudge-on-hover:hover .arrow-nudge {
+      animation: none !important;
+    }
+  }
+}
+
+@layer components {
+  .container-x {
+    @apply mx-auto w-full max-w-7xl px-5 sm:px-8;
+  }
+
+  .eyebrow {
+    @apply font-alt text-[11px] font-bold uppercase tracking-[0.35em] text-neon;
+  }
+
+  /* ——— текстові ефекти ——— */
+
+  .neon-text {
+    background: linear-gradient(120deg, #7DD8F8 10%, #4DC9F6 45%, #1A8FC4 90%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* дзеркальний хром — для акцентних слів */
+  .chrome-text {
+    background: linear-gradient(105deg, #f2fbff 0%, #9ad9f5 22%, #4dc9f6 42%, #d9f3ff 58%, #1a8fc4 80%, #7dd8f8 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* clip-path reveal для SplitText — не обрізає діакритику (Й, Ґ, Ї) */
+  .clip-text-reveal {
+    clip-path: polygon(0 50%, 100% 50%, 100% 100%, 0 100%);
+    animation: clip-slide-up 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  @keyframes clip-slide-up {
+    0% {
+      clip-path: polygon(0 50%, 100% 50%, 100% 100%, 0 100%);
+      transform: translateY(112%) rotate(4deg);
+    }
+    100% {
+      clip-path: polygon(0 0%, 100% 0%, 100% 100%, 0 100%);
+      transform: translateY(0) rotate(0deg);
+    }
+  }
+
+  .text-outline {
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(240, 242, 245, 0.22);
+  }
+
+  .text-outline-neon {
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(77, 201, 246, 0.4);
+  }
+
+  /* ——— liquid glass поверхні ——— */
+
+  .glass {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: linear-gradient(160deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.015) 38%, rgba(77, 201, 246, 0.04));
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+  }
+
+  /* інтерактивна скляна картка зі спекуляром за курсором (--mx/--my) */
+  .glass-card {
+    position: relative;
+    isolation: isolate;
+    border-radius: 1.25rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: linear-gradient(160deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.015) 38%, rgba(77, 201, 246, 0.045));
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.07),
+      0 24px 50px -30px rgba(0, 0, 0, 0.85);
+    transition: border-color 0.45s ease, box-shadow 0.45s ease, transform 0.45s cubic-bezier(0.21, 0.65, 0.15, 1);
+  }
+
+  /* верхнє світлове ребро */
+  .glass-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.09), transparent 24%);
+    mix-blend-mode: screen;
+  }
+
+  /* спекуляр, що слідує за курсором */
+  .glass-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), rgba(125, 216, 248, 0.12), transparent 65%);
+    opacity: 0;
+    transition: opacity 0.45s ease;
+  }
+
+  .glass-card:hover {
+    border-color: rgba(77, 201, 246, 0.35);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.09),
+      0 32px 70px -35px rgba(77, 201, 246, 0.28);
+  }
+
+  .glass-card:hover::after {
+    opacity: 1;
+  }
+
+  /* ——— кнопки ——— */
+
+  .btn-neon {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-neon px-7 py-3.5 text-sm font-bold uppercase tracking-widest text-night transition-all duration-300 hover:bg-neon-light hover:shadow-[0_10px_45px_-8px_rgba(77,201,246,0.6)] active:scale-[0.97];
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-white/15 px-7 py-3.5 text-sm font-semibold uppercase tracking-widest text-ivory backdrop-blur-md transition-all duration-300 hover:border-neon/60 hover:bg-neon/5 hover:text-neon-light active:scale-[0.97];
+  }
+
+  .label {
+    @apply mb-1.5 block font-alt text-[11px] font-semibold uppercase tracking-[0.2em] text-mist;
+  }
+
+  .input {
+    @apply w-full rounded-xl border border-white/10 bg-night/50 px-4 py-3 text-sm text-ivory outline-none backdrop-blur-md transition-all duration-300 placeholder:text-white/25 focus:border-neon/60 focus:bg-night/70 focus:shadow-[0_0_0_4px_rgba(77,201,246,0.08)] focus:ring-2 focus:ring-neon/20;
+  }
+
+  .hairline {
+    background: linear-gradient(90deg, transparent, rgba(77, 201, 246, 0.45), transparent);
+  }
+}
+
+/* ——— фонові ефекти (aurora / streaks) ——— */
+
+.aurora-blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(100px);
+  will-change: transform;
+  pointer-events: none;
+}
+
+@keyframes drift-a {
+  0% { transform: translate3d(-6%, -4%, 0) scale(1); }
+  50% { transform: translate3d(9%, 7%, 0) scale(1.18); }
+  100% { transform: translate3d(-6%, -4%, 0) scale(1); }
+}
+@keyframes drift-b {
+  0% { transform: translate3d(7%, 5%, 0) scale(1.1); }
+  50% { transform: translate3d(-8%, -9%, 0) scale(0.92); }
+  100% { transform: translate3d(7%, 5%, 0) scale(1.1); }
+}
+@keyframes drift-c {
+  0% { transform: translate3d(0, 8%, 0) scale(0.95); }
+  50% { transform: translate3d(-6%, -6%, 0) scale(1.15); }
+  100% { transform: translate3d(0, 8%, 0) scale(0.95); }
+}
+.drift-a { animation: drift-a 52s ease-in-out infinite alternate; }
+.drift-b { animation: drift-b 64s ease-in-out infinite alternate; }
+.drift-c { animation: drift-c 48s ease-in-out infinite alternate; }
+
+/* світлові промені, що пробігають екраном */
+@keyframes streak {
+  0% { transform: translateX(-130%) rotate(16deg); opacity: 0; }
+  10% { opacity: 0.55; }
+  55% { opacity: 0.55; }
+  100% { transform: translateX(260%) rotate(16deg); opacity: 0; }
+}
+.light-streak {
+  position: absolute;
+  height: 1px;
+  width: 38vw;
+  background: linear-gradient(90deg, transparent, rgba(125, 216, 248, 0.5), transparent);
+  animation: streak 12s ease-in-out infinite;
+  animation-delay: var(--streak-delay, 0s);
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+/* ——— анімована світна межа (border beam) ——— */
+
+@property --beam-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes beam-spin {
+  to { --beam-angle: 360deg; }
+}
+
+.border-beam {
+  position: relative;
+}
+.border-beam::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(
+    from var(--beam-angle),
+    transparent 0deg,
+    rgba(77, 201, 246, 0.75) 45deg,
+    rgba(125, 216, 248, 0.9) 70deg,
+    transparent 120deg
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: beam-spin 5.5s linear infinite;
+  pointer-events: none;
+}
+
+/* ——— м'яке левітації для скляних чипів ——— */
+
+@keyframes float-y {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.float-y { animation: float-y 7s ease-in-out infinite; }
+.float-y-slow { animation: float-y 10s ease-in-out infinite reverse; }
+
+/* ——— службові анімації ——— */
+
+@keyframes kenburns {
+  from { transform: scale(1.03); }
+  to { transform: scale(1.13); }
+}
+.kenburns {
+  animation: kenburns 16s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.ticker-track {
+  animation: ticker 36s linear infinite;
+  will-change: transform;
+}
+/* повільний конвеєр для відгуків */
+.ticker-track.ticker-slow {
+  animation-duration: 70s;
+}
+.ticker-reverse {
+  animation-direction: reverse;
+}
+.ticker:hover .ticker-track {
+  animation-play-state: paused;
+}
+
+@keyframes scroll-hint {
+  0% { transform: translateY(0); opacity: 1; }
+  70% { transform: translateY(14px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 0; }
+}
+.scroll-hint {
+  animation: scroll-hint 1.8s ease-in-out infinite;
+}
+
+/* scroll line — grow top→bottom, fade, repeat */
+@keyframes scroll-line {
+  0% { height: 0; opacity: 1; }
+  50% { height: 100%; opacity: 1; }
+  80% { height: 100%; opacity: 0; }
+  100% { height: 0; opacity: 0; }
+}
+.scroll-line {
+  animation: scroll-line 2s ease-in-out infinite;
+}
+
+@keyframes handle-hint {
+  0%, 100% { transform: translateX(-6px); }
+  50% { transform: translateX(6px); }
+}
+.handle-hint {
+  animation: handle-hint 0.9s ease-in-out 2;
+}
+
+/* пульс статусу «відчинено/зачинено» */
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 var(--pulse-color); }
+  70% { box-shadow: 0 0 0 6px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+.pulse-dot {
+  animation: pulse-ring 2s infinite;
+}
+
+/* стрілка ↗: нахил translate(-2px, 2px) → повернення у (0,0) */
+@keyframes arrow-nudge {
+  0% { transform: translate(0, 0); }
+  35% { transform: translate(-2px, 2px); }
+  100% { transform: translate(0, 0); }
+}
+.arrow-nudge-on-hover:hover .arrow-nudge {
+  animation: arrow-nudge 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ——— glassmorphism stat cards ——— */
+
+.stat-card {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02) 38%, rgba(77, 201, 246, 0.04));
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 8px 32px -12px rgba(0, 0, 0, 0.5);
+  transition: border-color 0.4s ease, box-shadow 0.4s ease, transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.stat-card:hover {
+  border-color: rgba(77, 201, 246, 0.35);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 20px 50px -15px rgba(77, 201, 246, 0.25);
+}
+
+/* ——— scroll arrow bounce ——— */
+
+@keyframes scroll-arrow-bounce {
+  0%, 100% { transform: translateY(0); opacity: 1; }
+  50% { transform: translateY(6px); opacity: 0.5; }
+}
+.scroll-arrow {
+  animation: scroll-arrow-bounce 1.6s ease-in-out infinite;
+}
+
+/* ——— service cards ——— */
+
+.service-card {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.015) 38%, rgba(77, 201, 246, 0.04));
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+.service-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(77, 201, 246, 0.3);
+  box-shadow: 0 20px 50px -15px rgba(77, 201, 246, 0.2);
+}
+
+/* ——— portfolio cards ——— */
+
+.portfolio-card {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: border-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+.portfolio-card:hover {
+  border-color: rgba(77, 201, 246, 0.4);
+  box-shadow: 0 30px 70px -30px rgba(77, 201, 246, 0.3);
+}
+
+/* ——— booking form ——— */
+
+.booking-input {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 14px 16px;
+  color: white;
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.booking-input::placeholder {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.booking-input:focus {
+  border-color: #00B4D8;
+  box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.15);
+}
+
+.booking-input[aria-invalid="true"] {
+  border-color: #FF4444;
+  box-shadow: 0 0 0 3px rgba(255, 68, 68, 0.15);
+}
+
+select.booking-input {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2300B4D8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 40px;
+}
+
+.booking-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  background: #00B4D8;
+  padding: 14px 28px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #0A0A10;
+  transition: background 0.3s ease, transform 0.15s ease;
+}
+
+.booking-submit:hover {
+  background: #0099B8;
+}
+
+.booking-submit:active {
+  transform: scale(0.98);
+}
+
+.booking-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
