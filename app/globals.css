@@ -347,8 +347,12 @@
 .ticker-reverse {
   animation-direction: reverse;
 }
-.ticker:hover .ticker-track {
-  animation-play-state: paused;
+/* пауза на hover — лише для пристроїв із реальним курсором:
+   на тачскрінах :hover «залипає» після дотику і зупиняє конвеєр */
+@media (hover: hover) {
+  .ticker:hover .ticker-track {
+    animation-play-state: paused;
+  }
 }
 
 @keyframes scroll-hint {
