@@ -3,7 +3,9 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useScroll, useSpring } from "framer-motion";
 import { NAV, SITE } from "@/lib/data";
+import { track } from "@/lib/analytics";
 import { InstagramIcon, MenuIcon, PhoneIcon, XIcon } from "./icons";
+import Magnetic from "./Magnetic";
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -23,6 +25,14 @@ export default function Header() {
     return () => {
       document.body.style.overflow = "";
     };
+  }, [open]);
+
+  // Escape закриває мобільне меню
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
   }, [open]);
 
   return (
@@ -64,23 +74,40 @@ export default function Header() {
               ))}
             </nav>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2.5 sm:gap-3">
+              {/* телефон: іконка на lg, текст на xl */}
               <a
                 href={SITE.phoneHref}
+                aria-label={`Зателефонувати ${SITE.phone}`}
+                onClick={() => track("phone_click", { location: "header" })}
+                className="glass hidden size-11 items-center justify-center rounded-full text-neon transition-colors hover:text-neon-light lg:flex xl:hidden"
+              >
+                <PhoneIcon className="size-5" />
+              </a>
+              <a
+                href={SITE.phoneHref}
+                onClick={() => track("phone_click", { location: "header" })}
                 className="hidden items-center gap-2 text-sm font-semibold text-ivory transition-colors hover:text-neon-light xl:flex"
               >
                 <PhoneIcon className="size-4 text-neon" />
                 {SITE.phone}
               </a>
-              <a href="#zapis" className="btn-neon hidden px-6! py-2.5! sm:inline-flex">
-                Записатися
-              </a>
+              <Magnetic strength={0.2}>
+                <a
+                  href="#zapis"
+                  onClick={() => track("cta_click", { location: "header" })}
+                  className="btn-neon px-3.5! py-2! text-[11px]! sm:px-6! sm:py-2.5! sm:text-sm!"
+                >
+                  <span className="sm:hidden">Запис</span>
+                  <span className="hidden sm:inline">Записатися</span>
+                </a>
+              </Magnetic>
               <button
                 type="button"
                 onClick={() => setOpen((v) => !v)}
                 aria-expanded={open}
                 aria-label={open ? "Закрити меню" : "Відкрити меню"}
-                className="glass flex size-10 items-center justify-center rounded-full text-ivory transition-colors hover:border-neon/50 hover:text-neon-light lg:hidden"
+                className="glass flex size-11 items-center justify-center rounded-full text-ivory transition-colors hover:border-neon/50 hover:text-neon-light lg:hidden"
               >
                 {open ? <XIcon className="size-5" /> : <MenuIcon className="size-5" />}
               </button>
@@ -124,13 +151,18 @@ export default function Header() {
                 Записатися
               </a>
               <div className="flex items-center justify-between text-sm text-ivory/60">
-                <a href={SITE.phoneHref} className="flex items-center gap-2 font-semibold text-ivory">
+                <a
+                  href={SITE.phoneHref}
+                  onClick={() => track("phone_click", { location: "mobile_menu" })}
+                  className="flex items-center gap-2 font-semibold text-ivory"
+                >
                   <PhoneIcon className="size-4 text-neon" /> {SITE.phone}
                 </a>
                 <a
                   href={SITE.instagram}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => track("instagram_click", { location: "mobile_menu" })}
                   className="flex items-center gap-2 hover:text-neon-light"
                   aria-label="Instagram"
                 >

@@ -5,18 +5,19 @@ import Image from "next/image";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import CountUp from "react-countup";
 import { STATS } from "@/lib/data";
+import { track } from "@/lib/analytics";
 import SplitText from "./SplitText";
 import Magnetic from "./Magnetic";
 import { ArrowRightIcon, ClockIcon, MapPinIcon, StarIcon } from "./icons";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
-const PAGE_LOAD_OFFSET = 1.4;
+const PAGE_LOAD_OFFSET = 0.4;
 
-const fade = (i: number) => ({
+const fade = (delay: number) => ({
   initial: { opacity: 0, y: 24 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.9, delay: i * 0.15 + PAGE_LOAD_OFFSET, ease: EASE },
+  transition: { duration: 0.9, delay: delay + PAGE_LOAD_OFFSET, ease: EASE },
 });
 
 export default function Hero() {
@@ -82,9 +83,15 @@ export default function Hero() {
         className="container-x relative z-10 flex flex-1 items-center pt-28 pb-12"
       >
         <div className="flex max-w-3xl flex-col gap-6">
+          {/* Eyebrow — одразу зрозуміло, що це і де */}
+          <motion.p {...fade(0)} className="eyebrow inline-flex items-center gap-3">
+            <span className="hairline inline-block h-px w-10" aria-hidden />
+            Детейлінг-студія · Львів
+          </motion.p>
+
           {/* Title */}
           <motion.h1
-            {...fade(0)}
+            {...fade(0.1)}
             className="font-display text-[clamp(2.1rem,5.8vw,4.9rem)] font-extrabold uppercase leading-[1.04] tracking-tight"
           >
             <SplitText
@@ -92,14 +99,14 @@ export default function Hero() {
                 { text: "Блиск", className: "chrome-text" },
                 { text: "який збирає погляди" },
               ]}
-              delay={1.55}
+              delay={0.55}
               stagger={0.06}
             />
           </motion.h1>
 
           {/* Subtitle */}
           <motion.p
-            {...fade(0.2)}
+            {...fade(0.25)}
             className="max-w-xl text-base leading-relaxed text-ivory/70 sm:text-lg"
           >
             Хімчистка салону, полірування кузову, керамічні покриття та ремонт ЛКП у Львові.
@@ -109,7 +116,11 @@ export default function Hero() {
           {/* Buttons */}
           <motion.div {...fade(0.4)} className="mt-2 flex flex-wrap items-center gap-3">
             <Magnetic>
-              <a href="#zapis" className="btn-neon">
+              <a
+                href="#zapis"
+                onClick={() => track("cta_click", { location: "hero" })}
+                className="btn-neon"
+              >
                 Записатися
                 <ArrowRightIcon className="size-4" />
               </a>
@@ -123,7 +134,7 @@ export default function Hero() {
 
           {/* Meta row (mobile/tablet) */}
           <motion.div
-            {...fade(0.6)}
+            {...fade(0.55)}
             className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-ivory/60 lg:hidden"
           >
             <span className="inline-flex items-center gap-2">
@@ -132,7 +143,7 @@ export default function Hero() {
             </span>
             <span className="inline-flex items-center gap-2">
               <ClockIcon className="size-4 text-neon" />
-              Пн–Сб · 09:00–19:00
+              Пн–Пт 09–19 · Сб 10–18
             </span>
           </motion.div>
         </div>
@@ -142,12 +153,22 @@ export default function Hero() {
           ref={carContainerRef}
           initial={reduce ? false : { opacity: 0, x: 200, scale: 0.85, rotate: -2 }}
           animate={{ opacity: 1, x: 0, scale: 1, rotate: 0 }}
-          transition={{ duration: 1.4, delay: 0.9 + PAGE_LOAD_OFFSET, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 1.4, delay: 0.5 + PAGE_LOAD_OFFSET, ease: [0.16, 1, 0.3, 1] }}
           className="absolute right-6 top-1/2 hidden -translate-y-1/2 lg:block xl:right-14"
           onMouseMove={handleCarMouseMove}
           onMouseEnter={() => setMaskActive(true)}
           onMouseLeave={() => setMaskActive(false)}
         >
+          {/* підказка до reveal-ефекту */}
+          <motion.span
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.6 + PAGE_LOAD_OFFSET, duration: 0.6 }}
+            className="absolute -top-10 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap text-[10px] uppercase tracking-[0.3em] text-ivory/50"
+          >
+            Наведіть — побачите результат
+          </motion.span>
+
           {/* Blue glow under car */}
           <div
             className="pointer-events-none absolute -bottom-8 left-1/2 -z-10 h-[60%] w-[80%] -translate-x-1/2 rounded-full blur-[60px]"
@@ -158,7 +179,7 @@ export default function Hero() {
           <div className="relative w-[480px] xl:w-[540px]">
             {/* Dirty car (always visible) */}
             <Image
-              src="/images/car-dirty.png"
+              src="/images/car-dirty.webp"
               alt="Брудне авто до детейлінгу"
               width={1536}
               height={1024}
@@ -166,7 +187,7 @@ export default function Hero() {
               className="w-full h-auto"
             />
 
-            {/* Clean car — revealed only under cursor */}
+            {/* Clean car — revealed only under cursor, вантажимо ліниво */}
             <div
               className="absolute inset-0 transition-opacity duration-300"
               style={{
@@ -176,11 +197,11 @@ export default function Hero() {
               }}
             >
               <Image
-                src="/images/car-clean.png"
+                src="/images/car-clean.webp"
                 alt="Чисте авто після детейлінгу"
                 width={1536}
                 height={1024}
-                priority
+                loading="lazy"
                 className="w-full h-auto"
               />
             </div>
@@ -223,7 +244,7 @@ export default function Hero() {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 2.5 + PAGE_LOAD_OFFSET, duration: 0.8 }}
+        transition={{ delay: 1.2 + PAGE_LOAD_OFFSET, duration: 0.8 }}
         style={reduce ? undefined : { opacity: statsOpacity }}
         className="absolute bottom-40 left-1/2 -translate-x-1/2 z-20 hidden flex-col items-center gap-2 text-ivory/50 transition-colors hover:text-neon-light xl:flex"
       >

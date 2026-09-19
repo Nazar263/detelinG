@@ -1,22 +1,18 @@
 import type { Metadata, Viewport } from "next";
-import { Manrope, Montserrat, Unbounded } from "next/font/google";
+import Script from "next/script";
+import { Manrope, Unbounded } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PageLoader from "@/components/PageLoader";
 import CustomCursor from "@/components/CustomCursor";
 import Background from "@/components/Background";
+import MobileCTABar from "@/components/MobileCTABar";
 import { BASE_URL, SITE } from "@/lib/data";
 
 const unbounded = Unbounded({
   subsets: ["latin", "cyrillic"],
   variable: "--font-unbounded",
-  display: "swap",
-});
-
-const montserrat = Montserrat({
-  subsets: ["latin", "cyrillic"],
-  variable: "--font-montserrat",
   display: "swap",
 });
 
@@ -109,8 +105,9 @@ const jsonLd = {
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
   return (
-    <html lang="uk" className={`${unbounded.variable} ${montserrat.variable} ${manrope.variable}`}>
+    <html lang="uk" className={`${unbounded.variable} ${manrope.variable}`}>
       <body>
         <script
           type="application/ld+json"
@@ -119,12 +116,24 @@ export default function RootLayout({
         <noscript>
           <style>{`#kc-loader{display:none!important}`}</style>
         </noscript>
+        {GA_ID && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="ga-init" strategy="afterInteractive">
+              {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${GA_ID}');`}
+            </Script>
+          </>
+        )}
         <PageLoader />
         <Background />
         <CustomCursor />
         <Header />
         {children}
         <Footer />
+        <MobileCTABar />
       </body>
     </html>
   );

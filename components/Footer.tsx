@@ -1,13 +1,16 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { NAV, SITE } from "@/lib/data";
+import { track } from "@/lib/analytics";
+import PrivacyModal from "./PrivacyModal";
 import { InstagramIcon, PhoneIcon } from "./icons";
 
 export default function Footer() {
   const ref = useRef<HTMLElement>(null);
   const reduce = useReducedMotion();
+  const [privacyOpen, setPrivacyOpen] = useState(false);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end end"] });
   const bigX = useTransform(scrollYProgress, [0, 1], ["6%", "-6%"]);
   const year = new Date().getFullYear();
@@ -54,6 +57,7 @@ export default function Footer() {
           <div className="flex flex-col gap-3">
             <a
               href={SITE.phoneHref}
+              onClick={() => track("phone_click", { location: "footer" })}
               className="inline-flex items-center gap-2.5 text-sm font-semibold text-ivory transition-colors hover:text-neon-light"
             >
               <PhoneIcon className="size-4 text-neon" />
@@ -63,6 +67,7 @@ export default function Footer() {
               href={SITE.instagram}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => track("instagram_click", { location: "footer" })}
               className="inline-flex items-center gap-2.5 text-sm text-mist transition-colors hover:text-neon-light"
             >
               <InstagramIcon className="size-4 text-neon" />
@@ -76,8 +81,32 @@ export default function Footer() {
             © {year} {SITE.name}. Всі права захищено.
           </p>
           <p>{SITE.address}</p>
+          <button
+            type="button"
+            onClick={() => {
+              setPrivacyOpen(true);
+              track("privacy_open", { location: "footer" });
+            }}
+            className="underline-offset-2 transition-colors hover:text-neon-light hover:underline"
+          >
+            Політика конфіденційності
+          </button>
+        </div>
+
+        {/* розробник */}
+        <div className="flex justify-center border-t border-white/5 pt-4">
+          <a
+            href="https://freelance-ua.agency"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[11px] text-mist/80 transition-colors hover:text-neon-light"
+          >
+            Розробка — Freelance UA || Digital Agency
+          </a>
         </div>
       </div>
+
+      <PrivacyModal open={privacyOpen} onClose={() => setPrivacyOpen(false)} />
     </footer>
   );
 }

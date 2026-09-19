@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import { BEFORE_AFTER } from "@/lib/data";
@@ -8,6 +8,15 @@ import Reveal from "./Reveal";
 import { ChevronsLeftRightIcon } from "./icons";
 
 const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
+
+// тачскрін? (реактивно, SSR-safe — патерн як у CustomCursor)
+function subscribeCoarse(callback: () => void) {
+  const mq = window.matchMedia("(pointer: coarse)");
+  mq.addEventListener("change", callback);
+  return () => mq.removeEventListener("change", callback);
+}
+const getCoarse = () => window.matchMedia("(pointer: coarse)").matches;
+const getServerCoarse = () => false;
 
 function Compare({
   before,
@@ -26,8 +35,8 @@ function Compare({
   const posClip = useTransform(pos, (v) => `inset(0 ${100 - v}% 0 0)`);
   const [hintVisible, setHintVisible] = useState(true);
   const isDesktop = useRef(false);
+  const isTouch = useSyncExternalStore(subscribeCoarse, getCoarse, getServerCoarse);
 
-  // Check if desktop on mount
   useEffect(() => {
     isDesktop.current = window.matchMedia("(min-width: 1024px)").matches;
   }, []);
@@ -54,6 +63,7 @@ function Compare({
     const rect = ref.current?.getBoundingClientRect();
     if (!rect) return;
     pos.set(clamp(((clientX - rect.left) / rect.width) * 100, 2, 98));
+    setHintVisible(false);
   };
 
   return (
@@ -142,7 +152,7 @@ function Compare({
                   <ChevronsLeftRightIcon className="size-5" />
                 </span>
                 <span className="text-[10px] uppercase tracking-[0.2em] text-white/50 animate-pulse">
-                  Наведіть курсор
+                  {isTouch ? "Гортайте" : "Наведіть курсор"}
                 </span>
               </div>
             )}

@@ -17,8 +17,10 @@ export const bookingSchema = z.object({
     .trim()
     .min(2, "Вкажіть марку та модель авто")
     .max(80, "Максимум 80 символів"),
-  time: z.string().min(2, "Оберіть зручний час"),
+  time: z.string().optional(),
   comment: z.string().trim().max(500, "Максимум 500 символів").optional(),
+  // honeypot від ботів: люди поле не бачать і не заповнюють
+  website: z.string().optional(),
 });
 
 export type BookingInput = z.infer<typeof bookingSchema>;

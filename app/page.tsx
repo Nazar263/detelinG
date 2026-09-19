@@ -3,7 +3,9 @@ import About from "@/components/About";
 import Services from "@/components/Services";
 import Portfolio from "@/components/Portfolio";
 import BeforeAfter from "@/components/BeforeAfter";
+import Process from "@/components/Process";
 import Reviews from "@/components/Reviews";
+import FAQ from "@/components/FAQ";
 import Booking from "@/components/Booking";
 import Contacts from "@/components/Contacts";
 import Marquee from "@/components/Marquee";
@@ -22,12 +24,14 @@ export default function Home() {
         <Services />
         <Portfolio />
         <BeforeAfter />
+        <Process />
         <Marquee
           items={["Записуйся", "Огляд безкоштовний", "KrosCar"]}
           reverse
           className="border-y border-white/5 bg-night/40"
         />
         <Reviews />
+        <FAQ />
         <Booking />
         <Contacts />
       </main>

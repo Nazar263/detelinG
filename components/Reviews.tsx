@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { REVIEWS, SITE } from "@/lib/data";
+import { track } from "@/lib/analytics";
 import { ArrowUpRightIcon, StarIcon } from "./icons";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -17,7 +19,7 @@ const rise = (delay: number) => ({
 
 function Stars({ size = "size-[18px]" }: { size?: string }) {
   return (
-    <div className="flex gap-1" aria-label="5 зірок">
+    <div className="flex gap-1" role="img" aria-label="5 зірок">
       {Array.from({ length: 5 }).map((_, i) => (
         <StarIcon key={i} className={`${size} text-star`} />
       ))}
@@ -26,6 +28,7 @@ function Stars({ size = "size-[18px]" }: { size?: string }) {
 }
 
 export default function Reviews() {
+  const [paused, setPaused] = useState(false);
   const initials = (name: string) =>
     name
       .split(" ")
@@ -68,6 +71,7 @@ export default function Reviews() {
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`Рейтинг ${SITE.rating} у Google — читати відгуки`}
+            onClick={() => track("maps_click", { location: "reviews" })}
             className="group inline-flex items-center gap-5 rounded-2xl border border-white/[0.08] bg-white/[0.04] px-7 py-5 backdrop-blur-[12px] transition-all duration-300 hover:-translate-y-[3px] hover:border-aqua/30"
           >
             <span className="font-display text-4xl font-bold text-ivory">5.0</span>
@@ -89,9 +93,34 @@ export default function Reviews() {
           transition={{ duration: 0.7, delay: 0.2, ease: EASE }}
           className="mt-12"
         >
+          {/* пауза конвеєра — WCAG 2.2.2 (рухомий контент) */}
+          <div className="mb-1 flex justify-end">
+            <button
+              type="button"
+              onClick={() => setPaused((p) => !p)}
+              aria-pressed={paused}
+              aria-label={paused ? "Відтворити конвеєр відгуків" : "Призупинити конвеєр відгуків"}
+              className="glass flex size-11 items-center justify-center rounded-full text-ivory/70 transition-colors hover:border-neon/50 hover:text-neon-light"
+            >
+              {paused ? (
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden className="size-4">
+                  <path d="M8 5.5v13l11-6.5-11-6.5z" />
+                </svg>
+              ) : (
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden className="size-4">
+                  <rect x="6" y="5" width="4" height="14" rx="1" />
+                  <rect x="14" y="5" width="4" height="14" rx="1" />
+                </svg>
+              )}
+            </button>
+          </div>
+
           {/* py-3 — буфер, щоб hover-підйом картки не обрізався */}
           <div className="ticker overflow-hidden py-3" role="region" aria-label="Відгуки клієнтів">
-            <div className="ticker-track ticker-slow flex w-max items-stretch">
+            <div
+              className="ticker-track ticker-slow flex w-max items-stretch"
+              style={{ animationPlayState: paused ? "paused" : "running" }}
+            >
               {loop.map((review, i) => (
                 <article
                   key={`${review.name}-${i}`}

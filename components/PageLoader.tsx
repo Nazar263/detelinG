@@ -28,7 +28,7 @@ export default function PageLoader() {
         /* noop */
       }
       setVisible(false);
-    }, 1300);
+    }, 800);
     return () => {
       clearTimeout(t);
       document.body.style.overflow = "";

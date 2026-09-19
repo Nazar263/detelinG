@@ -2,10 +2,19 @@
 
 import CountUp from "react-countup";
 import { motion } from "framer-motion";
-import { STATS, SITE } from "@/lib/data";
+import { SITE } from "@/lib/data";
+import { track } from "@/lib/analytics";
 import { ArrowUpRightIcon, StarIcon } from "./icons";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
+
+// Інші факти, ніж у Hero-статистиці — без дублювання (rating і 500+ авто вже у Hero)
+const aboutStats = [
+  { label: "Рейтинг Google", display: "5.0" },
+  { label: "Авто виконано", value: 500, suffix: "+", duration: 1.2 },
+  { label: "Років досвіду", value: 5, suffix: "+", duration: 1.6 },
+  { label: "Гарантія якості", value: 100, suffix: "%", duration: 1.6 },
+] as const;
 
 const fadeLeft = (delay: number) => ({
   initial: { opacity: 0, x: -24 },
@@ -26,7 +35,10 @@ const titleLines = ["Детейлінг,", "який видно", "з першо
 export default function About() {
   return (
     <section id="pro-nas" className="relative py-24 sm:py-32">
-      <div className="container-x grid items-start gap-16 lg:grid-cols-[1.05fr_0.95fr] lg:gap-20">
+      {/* blueprint-сітка — «жодних приблизно, тільки виміряний результат» */}
+      <div aria-hidden className="blueprint" />
+
+      <div className="container-x relative grid items-start gap-16 lg:grid-cols-[1.05fr_0.95fr] lg:gap-20">
         {/* ліва колонка — текст */}
         <div>
           {/* Eyebrow + line */}
@@ -67,58 +79,11 @@ export default function About() {
             <strong className="font-semibold text-ivory">5.0</strong>, а клієнти повертаються
             та приводять друзів.
           </motion.p>
-
-          {/* Google rating card */}
-          <motion.div {...fadeUp(0.9)} className="mt-9">
-            <a
-              href={SITE.googleMaps}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group flex items-center justify-between gap-6 rounded-2xl border border-white/[0.08] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-neon/40 hover:shadow-[0_20px_50px_-15px_rgba(77,201,246,0.2)]"
-              style={{
-                background:
-                  "linear-gradient(160deg, rgba(255,255,255,0.055), rgba(255,255,255,0.015) 38%, rgba(77,201,246,0.04))",
-                backdropFilter: "blur(14px)",
-                WebkitBackdropFilter: "blur(14px)",
-              }}
-              aria-label={`Рейтинг ${SITE.rating} у Google — відкрити карту`}
-            >
-              <div className="flex items-center gap-5">
-                <div className="flex flex-col items-center">
-                  <span className="font-display text-4xl text-neon-light">5.0</span>
-                  <div className="mt-1.5 flex gap-0.5" aria-label="Рейтинг 5 з 5">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <StarIcon key={i} className="size-3.5 text-neon" />
-                    ))}
-                  </div>
-                </div>
-                <div className="text-sm leading-relaxed">
-                  <p className="font-semibold text-ivory">Рейтинг Google</p>
-                  <p className="text-mist">на основі відгуків клієнтів</p>
-                  <div className="mt-2 flex -space-x-2">
-                    {["О", "М", "А", "І"].map((ch, i) => (
-                      <motion.span
-                        key={ch}
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        whileInView={{ opacity: 1, scale: 1 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.4, delay: 1.0 + i * 0.08, ease: EASE }}
-                        className="flex size-7 items-center justify-center rounded-full border border-night bg-neon/20 font-display text-[10px] text-neon-light"
-                      >
-                        {ch}
-                      </motion.span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-              <ArrowUpRightIcon className="size-5 shrink-0 text-mist transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-neon" />
-            </a>
-          </motion.div>
         </div>
 
-        {/* права колонка — статистика */}
+        {/* права колонка — статистика (інші факти, ніж у Hero) */}
         <div className="grid grid-cols-2 lg:pt-24">
-          {STATS.map((stat, i) => (
+          {aboutStats.map((stat, i) => (
             <motion.div
               key={stat.label}
               initial={{ opacity: 0, y: 24 }}
@@ -135,14 +100,13 @@ export default function About() {
                 className="absolute left-0 top-0 h-0 w-px bg-neon/70 transition-all duration-500 group-hover:h-full"
               />
               <span className="font-display text-4xl font-bold text-ivory transition-colors duration-300 group-hover:text-neon sm:text-5xl">
-                {i === 0 ? (
-                  "5.0"
+                {"display" in stat ? (
+                  stat.display
                 ) : (
                   <CountUp
                     end={stat.value}
-                    decimals={stat.decimals}
                     suffix={stat.suffix}
-                    duration={stat.value === 5 ? 1.2 : 2}
+                    duration={stat.duration}
                     enableScrollSpy
                     scrollSpyOnce
                     scrollSpyDelay={150}
@@ -155,6 +119,79 @@ export default function About() {
             </motion.div>
           ))}
         </div>
+      </div>
+
+      {/* Google rating card — full width */}
+      <div className="container-x mt-12">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-70px" }}
+          transition={{ duration: 0.8, delay: 0.2, ease: EASE }}
+        >
+          <a
+            href={SITE.googleMaps}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group relative flex w-full items-center justify-between overflow-hidden rounded-2xl border border-white/[0.08] px-8 py-6 sm:px-12 sm:py-8 transition-all duration-500 hover:-translate-y-1.5 hover:border-neon/40 hover:shadow-[0_24px_60px_-12px_rgba(77,201,246,0.25)]"
+            style={{
+              background: "linear-gradient(160deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02) 38%, rgba(77,201,246,0.05))",
+              backdropFilter: "blur(14px)",
+              WebkitBackdropFilter: "blur(14px)",
+            }}
+            aria-label={`Рейтинг ${SITE.rating} у Google — відкрити карту`}
+            onClick={() => track("maps_click", { location: "about" })}
+          >
+            <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100">
+              <div className="absolute -left-20 -top-20 h-40 w-40 rounded-full bg-neon/10 blur-[60px]" />
+              <div className="absolute -bottom-10 -right-10 h-32 w-32 rounded-full bg-neon/8 blur-[40px]" />
+            </div>
+            <div className="pointer-events-none absolute left-0 top-0 h-px w-full bg-gradient-to-r from-transparent via-neon/60 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+
+            <div className="relative flex items-center gap-6">
+              <div className="flex flex-col items-center">
+                <motion.span
+                  className="font-display text-5xl font-bold text-neon-light sm:text-6xl"
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  whileInView={{ scale: 1, opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: 1.0, ease: EASE }}
+                >
+                  {SITE.rating.toFixed(1)}
+                </motion.span>
+                <div className="mt-2 flex gap-1" aria-label={`Рейтинг ${SITE.rating} з 5`}>
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, y: 8, rotate: -30 }}
+                      whileInView={{ opacity: 1, y: 0, rotate: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.5, delay: 1.2 + i * 0.1, ease: [0.22, 1, 0.36, 1] }}
+                    >
+                      <StarIcon className="size-4 text-neon" />
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+              <div className="hidden h-14 w-px bg-white/10 sm:block" />
+              <div className="flex flex-col gap-2.5">
+                <p className="text-sm font-semibold text-ivory">Рейтинг Google</p>
+                <p className="text-xs text-mist">на основі {SITE.reviewsCount} відгуків</p>
+              </div>
+            </div>
+
+            <div className="relative hidden max-w-md lg:block">
+              <p className="text-sm leading-relaxed text-ivory/60 italic">
+                &ldquo;Полірування + кераміка — авто як нове, дзеркальний блиск! Дякую!&rdquo;
+              </p>
+              <p className="mt-1 text-xs text-mist">— Олександр К.</p>
+            </div>
+
+            <motion.div className="relative shrink-0" whileHover={{ scale: 1.1 }} transition={{ duration: 0.2 }}>
+              <ArrowUpRightIcon className="size-6 text-mist transition-all duration-300 group-hover:-translate-y-1 group-hover:translate-x-1 group-hover:text-neon" />
+            </motion.div>
+          </a>
+        </motion.div>
       </div>
     </section>
   );

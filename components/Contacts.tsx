@@ -3,6 +3,7 @@
 import { useMemo, type CSSProperties, useSyncExternalStore } from "react";
 import { motion } from "framer-motion";
 import { SITE } from "@/lib/data";
+import { track } from "@/lib/analytics";
 import {
   ArrowUpRightIcon,
   ClockIcon,
@@ -86,6 +87,7 @@ export default function Contacts() {
       value: SITE.address,
       href: SITE.googleMaps,
       external: true,
+      event: "maps_click" as const,
     },
     {
       icon: PhoneIcon,
@@ -93,6 +95,7 @@ export default function Contacts() {
       value: SITE.phone,
       href: SITE.phoneHref,
       external: false,
+      event: "phone_click" as const,
     },
     {
       icon: InstagramIcon,
@@ -100,6 +103,7 @@ export default function Contacts() {
       value: SITE.instagramHandle,
       href: SITE.instagram,
       external: true,
+      event: "instagram_click" as const,
     },
   ];
 
@@ -143,6 +147,7 @@ export default function Contacts() {
                 target={item.external ? "_blank" : undefined}
                 rel={item.external ? "noopener noreferrer" : undefined}
                 aria-label={`${item.label}: ${item.value}`}
+                onClick={() => track(item.event, { location: "contacts" })}
                 className="arrow-nudge-on-hover group flex items-center gap-5 rounded-2xl border border-white/[0.08] bg-white/[0.04] px-6 py-5 backdrop-blur-[12px] transition-all duration-[400ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-[4px] hover:border-aqua/35"
               >
                 <span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-aqua/15 text-aqua">
@@ -226,6 +231,7 @@ export default function Contacts() {
                 href={SITE.googleMaps}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => track("maps_click", { location: "contacts_map" })}
                 className="group absolute bottom-4 right-4 z-10 inline-flex items-center gap-2 rounded-full border border-white/15 bg-night/70 px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-ivory backdrop-blur-md transition-all duration-300 hover:border-aqua hover:bg-aqua hover:text-white"
               >
                 Відкрити на Картах

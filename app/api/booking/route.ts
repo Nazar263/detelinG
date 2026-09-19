@@ -2,7 +2,30 @@ import { NextResponse } from "next/server";
 import { bookingSchema } from "@/lib/validation";
 import { SITE } from "@/lib/data";
 
+// Простий in-memory rate limit: 5 заявок / 10 хв з однієї IP
+const hits = new Map<string, number[]>();
+const RATE_LIMIT = 5;
+const RATE_WINDOW = 10 * 60 * 1000;
+
+function rateLimited(ip: string) {
+  const now = Date.now();
+  const recent = (hits.get(ip) ?? []).filter((t) => now - t < RATE_WINDOW);
+  if (recent.length >= RATE_LIMIT) {
+    hits.set(ip, recent);
+    return true;
+  }
+  recent.push(now);
+  hits.set(ip, recent);
+  if (hits.size > 1000) hits.clear();
+  return false;
+}
+
 export async function POST(req: Request) {
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  if (rateLimited(ip)) {
+    return NextResponse.json({ ok: false, error: "RATE_LIMITED" }, { status: 429 });
+  }
+
   let body: unknown;
   try {
     body = await req.json();
@@ -23,6 +46,11 @@ export async function POST(req: Request) {
       },
       { status: 400 }
     );
+  }
+
+  // honeypot заповнено — бот. Відповідаємо «успіхом», заявку не зберігаємо
+  if (parsed.data.website) {
+    return NextResponse.json({ ok: true, simulated: true });
   }
 
   const { name, phone, service, car, time, comment } = parsed.data;
@@ -47,7 +75,7 @@ export async function POST(req: Request) {
             <tr><td style="padding:6px 12px 6px 0;color:#888">Телефон</td><td><a href="tel:${escapeHtml(phone.replace(/\s/g, ""))}">${escapeHtml(phone)}</a></td></tr>
             <tr><td style="padding:6px 12px 6px 0;color:#888">Послуга</td><td>${escapeHtml(service)}</td></tr>
             <tr><td style="padding:6px 12px 6px 0;color:#888">Авто</td><td>${escapeHtml(car)}</td></tr>
-            <tr><td style="padding:6px 12px 6px 0;color:#888">Час</td><td>${escapeHtml(time)}</td></tr>
+            <tr><td style="padding:6px 12px 6px 0;color:#888">Час</td><td>${escapeHtml(time ?? "—")}</td></tr>
             <tr><td style="padding:6px 12px 6px 0;color:#888">Коментар</td><td>${escapeHtml(comment ?? "—")}</td></tr>
           </table>
           <p style="font-family:sans-serif;font-size:12px;color:#888">${SITE.name}</p>

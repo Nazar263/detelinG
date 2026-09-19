@@ -4,7 +4,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { PORTFOLIO, type Work } from "@/lib/data";
-import { ChevronLeftIcon, ChevronRightIcon, PlusIcon, XIcon } from "./icons";
+import { track } from "@/lib/analytics";
+import Reveal from "./Reveal";
+import Magnetic from "./Magnetic";
+import { ArrowRightIcon, ChevronLeftIcon, ChevronRightIcon, PlusIcon, XIcon } from "./icons";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -58,6 +61,7 @@ function PortfolioCard({
 
 export default function Portfolio() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
 
   const { scrollYProgress } = useScroll({
@@ -65,9 +69,20 @@ export default function Portfolio() {
     offset: ["start start", "end end"],
   });
 
-  const cardWidth = 524;
-  const totalCardsWidth = PORTFOLIO.length * cardWidth;
-  const x = useTransform(scrollYProgress, [0, 1], [0, -(totalCardsWidth - 1280)]);
+  // динамічний діапазон зсуву: ширина треку мінус viewport
+  const [range, setRange] = useState(0);
+  useEffect(() => {
+    const measure = () => {
+      const el = trackRef.current;
+      if (!el) return;
+      setRange(Math.max(0, el.scrollWidth - window.innerWidth));
+    };
+    measure();
+    window.addEventListener("resize", measure, { passive: true });
+    return () => window.removeEventListener("resize", measure);
+  }, []);
+
+  const x = useTransform(scrollYProgress, [0, 1], [0, -range]);
 
   const [active, setActive] = useState<number | null>(null);
 
@@ -133,10 +148,14 @@ export default function Portfolio() {
         </motion.p>
       </div>
 
-      {/* Horizontal scroll gallery — desktop */}
-      <div ref={containerRef} className="relative hidden lg:block" style={{ height: "400vh" }}>
+      {/* Horizontal scroll gallery — desktop (скорочено до 250vh, щоб форма була ближче) */}
+      <div ref={containerRef} className="relative hidden lg:block" style={{ height: "250vh" }}>
         <div className="sticky top-0 flex h-screen items-center overflow-hidden">
-          <motion.div style={reduce ? undefined : { x }} className="flex gap-6 pl-[max(2rem,calc((100vw-1280px)/2+2rem))]">
+          <motion.div
+            ref={trackRef}
+            style={reduce ? undefined : { x }}
+            className="flex gap-6 pl-[max(2rem,calc((100vw-1280px)/2+2rem))]"
+          >
             {PORTFOLIO.map((work, i) => (
               <PortfolioCard
                 key={work.src}
@@ -149,18 +168,41 @@ export default function Portfolio() {
         </div>
       </div>
 
-      {/* Mobile/tablet: horizontal swipe */}
-      <div className="mt-10 overflow-x-auto px-5 pb-8 lg:hidden">
-        <div className="flex gap-4" style={{ width: "max-content" }}>
-          {PORTFOLIO.map((work, i) => (
-            <PortfolioCard
-              key={work.src}
-              work={work}
-              index={i}
-              onOpen={() => setActive(i)}
-            />
-          ))}
+      {/* Mobile/tablet: horizontal swipe + fade-краї */}
+      <div className="relative mt-10 lg:hidden">
+        <div className="overflow-x-auto px-5 pb-8">
+          <div className="flex gap-4" style={{ width: "max-content" }}>
+            {PORTFOLIO.map((work, i) => (
+              <PortfolioCard
+                key={work.src}
+                work={work}
+                index={i}
+                onOpen={() => setActive(i)}
+              />
+            ))}
+          </div>
         </div>
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-night to-transparent" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-night to-transparent" />
+      </div>
+
+      {/* CTA одразу після робіт — вхід у воронку */}
+      <div className="container-x pb-16 pt-4 lg:pt-0">
+        <Reveal className="flex flex-col items-center gap-5 text-center">
+          <p className="max-w-md text-base leading-relaxed text-mist">
+            Хочете такий самий результат для свого авто?
+          </p>
+          <Magnetic>
+            <a
+              href="#zapis"
+              onClick={() => track("cta_click", { location: "portfolio" })}
+              className="btn-neon"
+            >
+              Записатися
+              <ArrowRightIcon className="size-4" />
+            </a>
+          </Magnetic>
+        </Reveal>
       </div>
 
       {/* Lightbox */}

@@ -99,3 +99,25 @@ export const MenuIcon = (p: P) => (
     <line x1="3" y1="17" x2="21" y2="17" />
   </svg>
 );
+
+export const SearchIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <circle cx="11" cy="11" r="7" />
+    <line x1="16.5" y1="16.5" x2="21" y2="21" />
+  </svg>
+);
+
+export const SparklesIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M12 2l1.5 4.5L18 8l-4.5 1.5L12 14l-1.5-4.5L6 8l4.5-1.5L12 2z" />
+    <path d="M18 14l1 3 3 1-3 1-1 3-1-3-3-1 3-1 1-3z" opacity="0.6" />
+    <path d="M5 17l.7 2 .7.7 2 .7-2 .7-.7.7-.7-2-.7-.7-2-.7 2-.7.7-.7z" opacity="0.4" />
+  </svg>
+);
+
+export const CheckCircleIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <circle cx="12" cy="12" r="9" />
+    <polyline points="9 12 11 14 15 10" />
+  </svg>
+);

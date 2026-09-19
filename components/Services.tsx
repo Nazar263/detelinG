@@ -3,6 +3,8 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { SERVICES } from "@/lib/data";
+import { track } from "@/lib/analytics";
+import { prefillService } from "@/lib/prefill";
 import Magnetic from "./Magnetic";
 import { ArrowRightIcon } from "./icons";
 
@@ -27,7 +29,12 @@ const titleWords = ["Кожна", "деталь", "має значення"];
 export default function Services() {
   return (
     <section id="posluhy" className="relative py-24 sm:py-32">
-      <div className="container-x grid gap-14 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
+      {/* bead-ефект — краплі, що тримаються на керамічному покритті */}
+      <div aria-hidden className="beads">
+        <div className="beads-inner" />
+      </div>
+
+      <div className="container-x relative grid gap-14 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
         {/* ліва колонка — заголовок */}
         <div className="lg:sticky lg:top-28 lg:self-start">
           {/* Eyebrow + line */}
@@ -44,7 +51,7 @@ export default function Services() {
               <motion.span
                 key={i}
                 {...fadeLeft(0.15 + i * 0.15)}
-                className={`mr-[0.3em] inline-block ${
+                className={`block ${
                   word === "деталь" ? "chrome-text" : ""
                 }`}
               >
@@ -59,9 +66,13 @@ export default function Services() {
           </motion.p>
 
           {/* Button */}
-          <motion.div {...fadeUp(0.75)} className="mt-8 hidden lg:block">
+          <motion.div {...fadeUp(0.75)} className="mt-8">
             <Magnetic strength={0.25}>
-              <a href="#zapis" className="group btn-ghost">
+              <a
+                href="#zapis"
+                onClick={() => track("cta_click", { location: "services" })}
+                className="group btn-ghost"
+              >
                 Підібрати послугу
                 <ArrowRightIcon className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
               </a>
@@ -69,19 +80,26 @@ export default function Services() {
           </motion.div>
         </div>
 
-        {/* картки */}
+        {/* картки — вся картка клікабельна: prefill послуги у формі */}
         <div className="grid gap-5 sm:grid-cols-2">
           {SERVICES.map((service, i) => (
-            <motion.article
+            <a
               key={service.title}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-40px" }}
-              transition={{ duration: 0.7, delay: i * 0.1, ease: EASE }}
-              className={`service-card group relative overflow-hidden rounded-2xl ${
-                service.wide ? "sm:col-span-2" : ""
-              }`}
+              href="#zapis"
+              onClick={() => {
+                prefillService(service.title);
+                track("cta_click", { location: "services_card", service: service.title });
+              }}
+              aria-label={`Записатися на ${service.title}`}
+              className={`block ${service.wide ? "sm:col-span-2" : ""}`}
             >
+              <motion.article
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ duration: 0.7, delay: i * 0.1, ease: EASE }}
+                className="service-card group relative h-full overflow-hidden rounded-2xl"
+              >
               <div
                 className={`relative overflow-hidden ${
                   service.wide
@@ -119,16 +137,14 @@ export default function Services() {
                 </h3>
                 <p className="mt-2.5 text-sm leading-relaxed text-mist">{service.desc}</p>
                 {service.wide && (
-                  <a
-                    href="#zapis"
-                    className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-neon-light transition-all hover:gap-3.5"
-                  >
+                  <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-neon-light transition-all group-hover:gap-3.5">
                     Записатися на ремонт
                     <ArrowRightIcon className="size-4" />
-                  </a>
+                  </span>
                 )}
               </div>
-            </motion.article>
+              </motion.article>
+            </a>
           ))}
         </div>
       </div>
