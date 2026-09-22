@@ -33,7 +33,7 @@ export default function Background() {
   );
 
   return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+    <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden hidden md:block">
       {/* дрейфуючі aurora-плями — без blur-фільтра */}
       <motion.div
         style={reduce ? undefined : { x: aX, y: aY }}

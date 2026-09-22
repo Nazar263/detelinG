@@ -32,6 +32,7 @@ export const NAV = [
   { href: "#pro-nas", label: "Про нас" },
   { href: "#posluhy", label: "Послуги" },
   { href: "#roboty", label: "Роботи" },
+  { href: "#galereya", label: "Галерея" },
   { href: "#do-pislya", label: "До / Після" },
   { href: "#vidhuky", label: "Відгуки" },
   { href: "#kontakty", label: "Контакти" },
@@ -151,3 +152,16 @@ export const TIME_SLOTS = [
   "09:00", "10:00", "11:00", "12:00", "13:00",
   "14:00", "15:00", "16:00", "17:00", "18:00", "Гнучкий графік",
 ] as const;
+
+export type GalleryImage = { src: string; alt: string };
+
+export const GALLERY: GalleryImage[] = [
+  { src: "/images/gallery-1.jpg", alt: "Результат детейлінгу — ідеальний блиск" },
+  { src: "/images/work-1.jpg", alt: "Полірування фари" },
+  { src: "/images/work-2.jpg", alt: "Хімчистка салону" },
+  { src: "/images/work-3.jpg", alt: "Передпродажна підготовка" },
+  { src: "/images/work-4.jpg", alt: "Керамічне покриття" },
+  { src: "/images/work-5.jpg", alt: "Перешиття керма" },
+  { src: "/images/work-6.jpg", alt: "Полірування кузову" },
+  { src: "/images/work-7.jpg", alt: "Деталі Lamborghini" },
+];
