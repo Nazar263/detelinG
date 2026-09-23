@@ -31,7 +31,6 @@ export const BASE_URL = "https://kroscar-detailing-lviv.vercel.app";
 export const NAV = [
   { href: "#pro-nas", label: "Про нас" },
   { href: "#posluhy", label: "Послуги" },
-  { href: "#roboty", label: "Роботи" },
   { href: "#galereya", label: "Галерея" },
   { href: "#do-pislya", label: "До / Після" },
   { href: "#vidhuky", label: "Відгуки" },
@@ -85,19 +84,6 @@ export const SERVICES: Service[] = [
 ];
 
 export const SERVICE_OPTIONS = [...SERVICES.map((s) => s.title), "Інше / комплекс послуг"];
-
-export type Work = { src: string; alt: string; label: string; w: number; h: number };
-
-export const PORTFOLIO: Work[] = [
-  { src: "/images/work-1.jpg", alt: "Полірування фари Bentley — відновлення прозорості", label: "Полірування фар", w: 1200, h: 1500 },
-  { src: "/images/work-2.jpg", alt: "Хімчистка салону VW — глибоке очищення інтер'єру", label: "Хімчистка салону", w: 1200, h: 900 },
-  { src: "/images/work-3.jpg", alt: "Передпродажна підготовка Lamborghini — ідеальний стан", label: "Передпродажна підготовка", w: 1200, h: 1200 },
-  { src: "/images/work-4.jpg", alt: "Керамічне покриття — ефект водовідштовхування", label: "Захисні покриття", w: 1200, h: 1500 },
-  { src: "/images/work-5.jpg", alt: "Перешиття керма Lexus — натуральна шкіра", label: "Перешиття керма", w: 1200, h: 1200 },
-  { src: "/images/work-6.jpg", alt: "Полірування кузову — видалення царапин буфером", label: "Полірування кузову", w: 1200, h: 1500 },
-  { src: "/images/work-7.jpg", alt: "Деталізоване опрацювання Lamborghini — ідеальний блиск", label: "Деталі", w: 1200, h: 1500 },
-  { src: "/images/work-8.jpg", alt: "Диски HRE з жовтими гальмівними супортами", label: "Деталі", w: 1200, h: 900 },
-];
 
 export const BEFORE_AFTER = [
   {

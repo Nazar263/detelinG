@@ -126,7 +126,7 @@ export default function Hero() {
               </a>
             </Magnetic>
             <Magnetic strength={0.25}>
-              <a href="#roboty" className="btn-ghost">
+              <a href="#galereya" className="btn-ghost">
                 Дивитись роботи
               </a>
             </Magnetic>

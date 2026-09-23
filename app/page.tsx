@@ -1,7 +1,6 @@
 import Hero from "@/components/Hero";
 import About from "@/components/About";
 import Services from "@/components/Services";
-import Portfolio from "@/components/Portfolio";
 import Gallery from "@/components/Gallery";
 import BeforeAfter from "@/components/BeforeAfter";
 import Process from "@/components/Process";
@@ -23,7 +22,6 @@ export default function Home() {
         />
         <About />
         <Services />
-        <Portfolio />
         <Gallery />
         <BeforeAfter />
         <Process />
